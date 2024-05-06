@@ -1,0 +1,156 @@
+-- QUERY SU SINGOLA TABELLA
+-- ESERCIZIO 1
+SELECT *
+FROM software_houses
+WHERE country = 'United States';
+
+-- ESERCIZIO 2
+SELECT *
+FROM players
+WHERE city = 'Rogahnland';
+
+-- ESERCIZIO 3
+SELECT *
+FROM players
+WHERE name LIKE '%a';
+
+-- ESERCIZIO 4
+SELECT *
+FROM reviews
+WHERE player_id = 800;
+
+-- ESERCIZIO 5
+SELECT year, COUNT(*) AS 'N. di tornei disputati'
+FROM tournaments
+WHERE year = 2019
+GROUP BY year;
+
+-- ESERCIZIO 6 
+SELECT *
+FROM awards
+WHERE description LIKE '%facere%';
+
+-- ESERCIZIO 7
+SELECT DISTINCT videogame_id, MAX(category_id) AS category_id
+FROM category_videogame
+WHERE category_id IN (2,6)
+GROUP BY videogame_id;
+
+-- ESERCIZIO 8
+SELECT *
+FROM reviews
+WHERE rating >= 2
+AND rating <= 4;
+
+-- ESERCIZIO 9 
+SELECT *
+FROM videogames
+WHERE (DATEPART(year, release_date)) = 2020;
+
+-- ESERCIZIO 10
+SELECT DISTINCT videogame_id, rating
+FROM reviews
+WHERE rating = 5;
+
+-----------------------------------
+-- QUERY CON GROUP BY
+-- ESERCIZIO 1
+SELECT country, COUNT(*) AS 'N. presenti per Paese'
+FROM software_houses
+GROUP BY country;
+
+-- ESERCIZIO 2
+SELECT videogame_id, COUNT(*) AS 'N. di recensioni ricevute'
+FROM reviews
+GROUP BY videogame_id;
+
+-- ESERCIZIO 3
+SELECT pegi_label_id, COUNT(videogame_id) AS 'N. videogiochi con PEGI'
+FROM pegi_label_videogame
+GROUP BY pegi_label_id;
+
+-- ESERCIZIO 4
+SELECT (DATEPART(year, release_date)), COUNT(*) AS 'N. di videogiochi rilasciati'
+FROM videogames
+GROUP BY (DATEPART(year, release_date));
+
+-- ESERCIZIO 5 
+SELECT device_id, COUNT (videogame_id) AS 'N. di videogiochi per device'
+FROM device_videogame
+GROUP BY device_id;
+
+-- ESERCIZIO 6 
+SELECT videogame_id, AVG(rating) AS 'Media recensioni'
+FROM reviews
+GROUP BY videogame_id
+ORDER BY 'Media recensioni';
+
+-----------------------------------
+-- QUERY CON JOIN
+-- ESERCIZIO 1
+SELECT DISTINCT players.*
+FROM players
+JOIN reviews ON player_id = players.id;
+
+-- ESERCIZIO 2
+SELECT DISTINCT videogames.id
+FROM videogames
+JOIN tournament_videogame ON videogames.id = tournament_videogame.videogame_id
+JOIN tournaments ON tournament_videogame.tournament_id = tournaments.id
+WHERE tournaments.year = 2016;
+
+-- ESERCIZIO 3
+SELECT categories.*
+FROM categories
+JOIN category_videogame ON categories.id = category_videogame.category_id;
+
+-- ESERCIZIO 4
+SELECT DISTINCT software_houses.*
+FROM software_houses
+JOIN videogames ON software_houses.id = videogames.software_house_id
+WHERE YEAR(videogames.release_date) > 2020;
+
+-- ESERCIZIO 5
+SELECT award_videogame.*
+FROM award_videogame
+JOIN videogames ON award_videogame.award_id = videogames.id
+JOIN software_houses ON videogames.software_house_id = software_houses.id;
+
+-- ESERCIZIO 6
+SELECT DISTINCT videogames.name AS 'Nome Videogioco', categories.name AS 'Nome Categoria', pegi_labels.name AS 'PEGI' 
+FROM categories
+JOIN category_videogame ON categories.id = category_videogame.category_id
+JOIN videogames ON category_videogame.videogame_id = videogames.id
+JOIN pegi_label_videogame ON pegi_label_videogame.videogame_id = videogames.id
+JOIN pegi_labels ON pegi_label_videogame.pegi_label_id = pegi_labels.id
+JOIN reviews ON videogames.id = reviews.videogame_id
+WHERE reviews.rating IN (4, 5);
+
+-- ESERCIZIO 7
+SELECT DISTINCT videogames.id, videogames.name 
+FROM videogames
+JOIN tournament_videogame ON videogames.id = tournament_videogame.videogame_id
+JOIN tournaments ON tournament_videogame.tournament_id = tournaments.id
+JOIN player_tournament ON player_tournament.tournament_id = tournaments.id
+JOIN players ON players.id = player_tournament.player_id
+WHERE players.name LIKE 's%';
+
+-- ESERCIZIO 8
+SELECT DISTINCT tournaments.city 
+FROM tournaments
+JOIN tournament_videogame ON tournaments.id = tournament_videogame.tournament_id
+JOIN videogames ON tournament_videogame.videogame_id = videogames.id
+JOIN award_videogame ON videogames.id = award_videogame.videogame_id
+WHERE award_videogame.year = 2018;
+
+-- ESERCIZIO 9
+SELECT players.* 
+FROM players
+JOIN player_tournament ON players.id = player_tournament.player_id
+JOIN tournaments ON player_tournament.tournament_id = tournaments.id
+JOIN tournament_videogame ON tournament_videogame.tournament_id = tournaments.id
+JOIN videogames ON videogames.id = tournament_videogame.videogame_id
+JOIN award_videogame ON videogames.id = award_videogame.videogame_id
+JOIN awards ON awards.id = award_videogame.award_id
+WHERE awards.name = 'Gioco più atteso' AND award_videogame.year = 2018 AND tournaments.year = 2019;
+
